@@ -1,4 +1,5 @@
 // joplin-to-notion.js
+import 'dotenv/config'
 import { Client } from "@notionhq/client";
 import fs from "fs/promises";
 import path from "path";
