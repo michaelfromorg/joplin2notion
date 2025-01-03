@@ -7,7 +7,7 @@ import fs from "fs/promises";
 import path from "path";
 import yaml from "yaml";
 
-const NOTION_DATABASE_ID = "c13a16f892f140c4b2fcd33a174ebbf3";
+const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const JOPLIN_DIR = "/mnt/c/Users/mdema/Documents/Joplin/Bookmarks";
 
 const notion = new Client({
