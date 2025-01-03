@@ -1,14 +1,15 @@
-// joplin-to-notion.js
-import 'dotenv/config'
+/**
+ * A script to import my Joplin bookmark files to my Bookmarks DB in Notion.
+ */
+import 'dotenv/config';
 import { Client } from "@notionhq/client";
 import fs from "fs/promises";
 import path from "path";
 import yaml from "yaml";
 
 const NOTION_DATABASE_ID = "c13a16f892f140c4b2fcd33a174ebbf3";
-const JOPLIN_DIR = "/mnt/c/Users/mdema/Documents/Joplin/Bookmarks/test"; // Directory containing your Markdown files
+const JOPLIN_DIR = "/mnt/c/Users/mdema/Documents/Joplin/Bookmarks";
 
-// Initialize Notion client
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
@@ -65,7 +66,7 @@ async function createNotionPage(data) {
           rich_text: [
             {
               text: {
-                content: `Imported from Joplin on ${new Date().toISOString()}`,
+                content: '',
               },
             },
           ],
@@ -74,14 +75,17 @@ async function createNotionPage(data) {
     });
 
     console.log(`Successfully imported: ${data.title}`);
+    return true;
   } catch (error) {
     console.error(`Failed to import ${data.title}:`, error.message);
+    return false;
   }
 }
 
 async function importToNotion() {
+  const failedImports = [];
+
   try {
-    // Read all files in the directory
     const files = await fs.readdir(JOPLIN_DIR);
 
     for (const file of files) {
@@ -92,18 +96,33 @@ async function importToNotion() {
       const data = await parseMarkdownFile(filePath);
 
       if (data) {
-        console.log("Read data; creating Notion page for", file)
-        await createNotionPage(data);
+        console.log("Read data; creating Notion page for", file);
+        const success = await createNotionPage(data);
+        if (!success) {
+          failedImports.push({ file, title: data.title });
+        }
+        
         // Add a small delay to avoid rate limits
         await new Promise((resolve) => setTimeout(resolve, 500));
+      } else {
+        failedImports.push({ file, reason: 'Failed to parse markdown' });
       }
     }
 
-    console.log("Import completed!");
+    console.log("\nImport completed!");
+    
+    if (failedImports.length > 0) {
+      console.log("\nFailed imports:");
+      failedImports.forEach(({ file, title, reason }) => {
+        console.log(`- ${file}${title ? ` (${title})` : ''}${reason ? `: ${reason}` : ''}`);
+      });
+      console.log(`\nTotal failed imports: ${failedImports.length}`);
+    } else {
+      console.log("All files were imported successfully!");
+    }
   } catch (error) {
     console.error("Import failed:", error);
   }
 }
 
-// Run the import
 importToNotion();
