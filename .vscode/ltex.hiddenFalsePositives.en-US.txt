@@ -1,0 +1,1 @@
+{"rule":"A_LOT_OF_NN","sentence":"^\\QA bunch of one off scripts to migrate a collection of Markdown files from a Joplin export to Notion.\\E$"}
