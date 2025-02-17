@@ -1,0 +1,8 @@
+{
+  "files.insertFinalNewline": true,
+  "editor.formatOnSave": true,
+  "files.associations": {
+    ".env.example": "dotenv",
+    ".env": "dotenv"
+  }
+}
